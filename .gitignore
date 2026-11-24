@@ -1,0 +1,4 @@
+claude-setup-logs/
+*.log
+.env
+.env.*
