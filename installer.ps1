@@ -1,4 +1,4 @@
-# Claude Code setup for Windows
+# kerenai: Claude Code setup for Windows
 #
 # Installs (skips anything already installed):
 #   Git, Node.js LTS, GitHub CLI, Google Chrome        (one admin prompt)
@@ -7,7 +7,7 @@
 # Connects:
 #   GitHub account (browser login) and Git name/email
 #
-# Run:   double-click install.bat
+# Run:   the one-line command in README.md, or double-click install.bat
 # Check: double-click check.bat   (reports status, changes nothing)
 #
 # Only official sources are used: winget (Microsoft), the vendors' own
@@ -129,12 +129,16 @@ function Get-ClaudeCodeVersion {
     return $null
 }
 
+# Reads the user's package list from the registry instead of Get-AppxPackage:
+# Get-AppxPackage waits on the AppX service and can hang forever when that
+# service is stuck (seen on a real machine with AppXSvc in StopPending).
 function Test-ClaudeDesktop {
+    $repo = 'HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\Repository\Packages'
     try {
-        $pkg = Get-AppxPackage -Name 'Claude' -ErrorAction SilentlyContinue | Where-Object { $_.PackageFamilyName -like 'Claude_*' }
+        $pkg = Get-ChildItem -Path $repo -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -like 'Claude_*' }
         if ($pkg) { return $true }
     } catch {}
-    if (Test-Path (Join-Path $env:LOCALAPPDATA 'AnthropicClaude')) { return $true }
+    if (Test-Path (Join-Path $env:LOCALAPPDATA 'AnthropicClaude')) { return $true }   # older non-Store installer
     return $false
 }
 
@@ -328,7 +332,7 @@ function Install-SystemTools {
             Start-Process -FilePath 'powershell.exe' -ArgumentList $argLine -Verb RunAs -Wait -ErrorAction Stop
         } catch {
             Fail "No permission was given, so Git, Node.js, GitHub CLI and Chrome were not installed."
-            Warn 'Run install.bat again and click Yes on the Windows prompt.'
+            Warn 'Run the setup again and click Yes on the Windows prompt.'
             return
         }
     }
@@ -456,7 +460,7 @@ function Connect-GitHub {
         if (Test-GitHubLogin) {
             & $gh auth setup-git --hostname github.com *> $null
             Ok 'Connected to GitHub'
-        } else { Warn 'GitHub login not finished. Run install.bat again later.' }
+        } else { Warn 'GitHub login not finished. Run the setup again later.' }
     }
     Set-GitIdentity
 }
@@ -537,7 +541,7 @@ function Show-Summary {
 
 try {
     if ($AdminPart) {
-        $Host.UI.RawUI.WindowTitle = 'Claude setup - system tools'
+        $Host.UI.RawUI.WindowTitle = 'kerenai: system tools'
         Say 'Installing system tools. This window closes by itself when done.' 'Cyan'
         Write-Log "=== Admin part started (arch $($Script:Arch)) ==="
         Install-Git; Install-Node; Install-GhCli; Install-Chrome
@@ -546,10 +550,10 @@ try {
         exit 0
     }
 
-    $Host.UI.RawUI.WindowTitle = 'Claude setup'
+    $Host.UI.RawUI.WindowTitle = 'kerenai setup'
     Write-Host ''
     Say '========================================' 'Magenta'
-    Say '   Claude Code setup for Windows' 'Magenta'
+    Say '   kerenai: Claude Code setup for Windows' 'Magenta'
     Say '========================================' 'Magenta'
     Write-Log "=== Started. Check=$Check Arch=$($Script:Arch) Admin=$(Test-Admin) User=$env:USERNAME ==="
 
@@ -563,9 +567,9 @@ try {
     Say "  Windows: $os ($($Script:Arch))" 'Gray'
     if (-not [Environment]::Is64BitOperatingSystem) { Fail 'This is 32-bit Windows. Claude Code needs 64-bit Windows.'; exit 1 }
     if ($Script:Arch -eq 'arm64') { Warn 'ARM processor detected (Snapdragon). Supported, but tell your teacher if something fails.' }
-    if (Test-Admin) { Warn 'Running as administrator. Better: close this and double-click install.bat normally.' }
+    if (Test-Admin) { Warn 'Running as administrator. Better: close this and run the setup again in a normal window.' }
     try { $null = Invoke-WebRequest -Uri 'https://api.github.com' -Method Head -UseBasicParsing -TimeoutSec 20 -ErrorAction Stop }
-    catch { if (-not $_.Exception.Response) { Fail 'No internet connection. Connect to the internet and run install.bat again.'; exit 1 } }
+    catch { if (-not $_.Exception.Response) { Fail 'No internet connection. Connect to the internet and run the setup again.'; exit 1 } }
     Say '  Existing installations are detected and skipped.' 'Gray'
 
     Install-SystemTools
@@ -578,7 +582,7 @@ try {
 
     $allOk = Show-Summary
     Write-Host ''
-    if ($allOk) { Say '  All done!' 'Green' } else { Say '  Some items are missing. Run install.bat again; it only adds what is missing.' 'Yellow' }
+    if ($allOk) { Say '  All done!' 'Green' } else { Say '  Some items are missing. Run the setup again; it only adds what is missing.' 'Yellow' }
 
     Write-Host ''
     $null = Read-Host '  Press Enter to open VS Code in the Projects folder'
