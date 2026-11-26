@@ -1,10 +1,10 @@
 # kerenai: one-line setup for Windows
 #
 # Install (paste into a normal PowerShell window, not as administrator):
-#   irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0/get.ps1 | iex
+#   irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0.1/get.ps1 | iex
 #
 # Status check only (changes nothing):
-#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0/get.ps1))) -Check
+#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0.1/get.ps1))) -Check
 #
 # Downloads this exact version of the setup files from GitHub into a
 # 'kerenai' folder and runs installer.ps1 from there. The installer must
@@ -19,7 +19,7 @@ param([switch]$Check)
 & {
     param([bool]$CheckOnly)
 
-    $Version = 'v1.0'    # the tag this file is published under
+    $Version = 'v1.0.1'    # the tag this file is published under
     $Repo = 'Mashmahut/kerenai'
     $ErrorActionPreference = 'Stop'
     $ProgressPreference = 'SilentlyContinue'

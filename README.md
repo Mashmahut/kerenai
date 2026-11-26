@@ -16,7 +16,7 @@
 2. להעתיק את השורה הזו (כפתור ההעתקה בפינת המסגרת), להדביק בחלון עם Ctrl+V וללחוץ Enter:
 
 ```powershell
-irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0/get.ps1 | iex
+irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0.1/get.ps1 | iex
 ```
 
 3. לעקוב אחרי מה שמופיע בחלון:
@@ -37,7 +37,7 @@ irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0/get.ps1 | iex
 השורה הזו רק בודקת מה מותקן ומה חסר, ולא משנה שום דבר במחשב. מריצים אותה ושולחים צילום מסך של התוצאה:
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0/get.ps1))) -Check
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0.1/get.ps1))) -Check
 ```
 
 כל התקנה נרשמת בקובץ `setup.log` בתיקייה `%USERPROFILE%\claude-setup-logs\`. זה הקובץ ששולחים למי שמלווה אותך.
@@ -50,7 +50,7 @@ irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0/get.ps1 | iex
 | 2 | VS Code | לחשבון המשתמש, בלי הרשאות מנהל |
 | 3 | Claude Code | ההתקנה הרשמית מ-claude.ai |
 | 4 | אפליקציית Claude לדסקטופ | |
-| 5 | התוסף של Claude ל-VS Code, שמירה אוטומטית וגלישת שורות | |
+| 5 | התוסף של Claude ל-VS Code, תוסף RTL שמציג עברית מימין לשמאל, שמירה אוטומטית וגלישת שורות | |
 | 6 | תיקיית Projects מחוץ ל-OneDrive | |
 | 7 | חיבור לגיטהאב, ושם ומייל לגיט | המייל הפרטי של גיטהאב, כדי שהמייל האמיתי לא ייחשף |
 
@@ -62,8 +62,8 @@ irm https://raw.githubusercontent.com/Mashmahut/kerenai/v1.0/get.ps1 | iex
 
 ## עקרונות
 
-- רק מקורות רשמיים: winget של מיקרוסופט, שרתי ההורדה של כל יצרן, וההתקנה הרשמית של Anthropic
-- השורה נעולה לגרסה. היא מורידה תמיד את v1.0 בדיוק, ולא את מה שנמצא בריפו באותו רגע. גרסה חדשה מקבלת תגית חדשה, והשורה בדף הזה מתעדכנת איתה
+- רק מקורות רשמיים: winget של מיקרוסופט, שרתי ההורדה של כל יצרן, וההתקנה הרשמית של Anthropic. תוסף ה-RTL (yechielby.claude-code-rtl) הוא של מפתח עצמאי, ומגיע מחנות התוספים הרשמית של VS Code
+- השורה נעולה לגרסה. היא מורידה תמיד את v1.0.1 בדיוק, ולא את מה שנמצא בריפו באותו רגע. גרסה חדשה מקבלת תגית חדשה, והשורה בדף הזה מתעדכנת איתה
 - זו אותה שיטה של ההתקנה הרשמית של קלוד קוד (`irm https://claude.ai/install.ps1 | iex`)
 - הרשאות מנהל רק למה שחייב אותן. VS Code וקלוד קוד מותקנים לחשבון המשתמש
 - לא דורס הגדרות קיימות ב-VS Code ולא שם ומייל קיימים בגיט

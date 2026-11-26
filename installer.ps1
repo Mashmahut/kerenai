@@ -37,6 +37,8 @@ if ($Check) {
 if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64' -or $env:PROCESSOR_ARCHITEW6432 -eq 'ARM64') { $Script:Arch = 'arm64' } else { $Script:Arch = 'x64' }
 
 $Script:ChromeExtensionUrl = 'https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn'
+$Script:ClaudeExtensionId = 'anthropic.claude-code'
+$Script:RtlExtensionId = 'yechielby.claude-code-rtl'   # Hebrew right-to-left in the Claude Code panel
 
 # ============================================================
 # Output and logging
@@ -142,14 +144,17 @@ function Test-ClaudeDesktop {
     return $false
 }
 
-function Test-ClaudeExtension {
+function Test-VSCodeExtension([string]$Id) {
     $code = Get-CodeCmd
     if (-not $code) { return $false }
     try {
         $list = & $code --list-extensions 2>$null
-        return ($list -contains 'anthropic.claude-code')
+        return ($list -contains $Id)
     } catch { return $false }
 }
+
+function Test-ClaudeExtension { return (Test-VSCodeExtension $Script:ClaudeExtensionId) }
+function Test-RtlExtension    { return (Test-VSCodeExtension $Script:RtlExtensionId) }
 
 function Test-GitHubLogin {
     $gh = Get-GhExe
@@ -389,19 +394,22 @@ function Install-ClaudeDesktop {
 }
 
 function Install-ClaudeExtension {
-    Step '5/7' 'Claude Code extension for VS Code'
+    Step '5/7' 'Claude Code extension for VS Code, with Hebrew (RTL)'
     $code = Get-CodeCmd
-    if (-not $code) { Fail 'VS Code not found, cannot add the extension'; return }
-    if (Test-ClaudeExtension) { Skip 'Claude Code extension is already installed' }
-    else {
-        try {
-            $out = & $code --install-extension anthropic.claude-code --force 2>&1 | Out-String
-            Write-Log $out
-        } catch { Write-Log "Extension install failed: $($_.Exception.Message)" }
-        if (Test-ClaudeExtension) { Ok 'Claude Code extension installed' }
-        else { Fail "Extension not installed. Manual: VS Code > Extensions (Ctrl+Shift+X) > search 'Claude Code'" }
-    }
+    if (-not $code) { Fail 'VS Code not found, cannot add the extensions'; return }
+    Install-VSCodeExtension $code $Script:ClaudeExtensionId 'Claude Code extension' 'Claude Code'
+    Install-VSCodeExtension $code $Script:RtlExtensionId 'Hebrew (RTL) extension' 'Claude Code RTL'
     Set-VSCodeBasics
+}
+
+function Install-VSCodeExtension([string]$Code, [string]$Id, [string]$Label, [string]$SearchFor) {
+    if (Test-VSCodeExtension $Id) { Skip "$Label is already installed"; return }
+    try {
+        $out = & $Code --install-extension $Id --force 2>&1 | Out-String
+        Write-Log $out
+    } catch { Write-Log "$Id install failed: $($_.Exception.Message)" }
+    if (Test-VSCodeExtension $Id) { Ok "$Label installed" }
+    else { Fail "$Label not installed. Manual: VS Code > Extensions (Ctrl+Shift+X) > search '$SearchFor'" }
 }
 
 # Adds two beginner-friendly settings. Never overrides a setting the user
@@ -512,6 +520,7 @@ function Show-Summary {
         @('Claude Code',             [bool]$cc),
         @('Claude Desktop app',      (Test-ClaudeDesktop)),
         @('Claude extension in VS Code', (Test-ClaudeExtension)),
+        @('Hebrew (RTL) in VS Code', (Test-RtlExtension)),
         @('Projects folder',         (Test-Path (Get-ProjectsDir))),
         @('GitHub connected',        (Test-GitHubLogin)),
         @('Git name and email',      [bool]($id.Name -and $id.Email))
